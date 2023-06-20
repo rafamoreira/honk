@@ -1,3 +1,10 @@
 from django.contrib import admin
 
-# Register your models here.
+from circus.models import Honk
+
+
+class HonkAdmin(admin.ModelAdmin):
+    readonly_fields = ('created_at', 'updated_at', 'seen')
+
+
+admin.site.register(Honk, HonkAdmin)
