@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from circus.models import Honk
+from circus.models import Clown, Honk
 
 
 class HonkAdmin(admin.ModelAdmin):
@@ -8,3 +8,5 @@ class HonkAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Honk, HonkAdmin)
+
+admin.site.register(Clown)
