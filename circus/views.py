@@ -8,8 +8,14 @@ from circus.serializers import HonkSerializer
 
 
 @login_required
-def honk(request):
-    return render(request, 'circus/honk.html')
+def my_honks(request):
+    """
+    /circus/my_honks
+    """
+    context = {
+        'honks': Honk.get_honks(honked_id=request.user.id),
+    }
+    return render(request, 'circus/honk.html', context)
 
 
 class HonkViewSet(viewsets.ModelViewSet):
