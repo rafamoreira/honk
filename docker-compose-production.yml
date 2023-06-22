@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+  honk:
+    image: rafaelmoreiracunha/honk:latest
+    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    container_name: honk
+    volumes:
+      - sqlite_data:/app/sqlite_data/
+    ports:
+      - "80:8000"
+
+volumes:
+  sqlite_data:

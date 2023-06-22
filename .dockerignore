@@ -1,0 +1,5 @@
+.envrc
+.git
+.venv_honk
+media
+sqlite_data
