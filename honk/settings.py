@@ -127,7 +127,7 @@ LOGIN_REDIRECT_URL = "/"
 STORAGES = {
     "default": {"BACKEND": "storages.backends.gcloud.GoogleCloudStorage"},
     "staticfiles": {
-        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+        "BACKEND": "storages.backends.gcloud.GoogleCloudStorage"
     },
 }
 
