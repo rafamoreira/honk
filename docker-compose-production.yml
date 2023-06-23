@@ -7,6 +7,7 @@ services:
     container_name: honk
     volumes:
       - sqlite_data:/app/sqlite_data/
+      - /root/gcp-honk-credentials.json:/app/gcp-honk-credentials.json
     ports:
       - "80:8000"
 

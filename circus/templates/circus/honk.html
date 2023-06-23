@@ -1,5 +1,5 @@
 {% load static %}
 {% for honk in honks %}
     <p>{{ honk.honker }} honked you with {{ honk.clown_name }}</p>
-    <img src="{{ honk.clown_image }}" />
+    <img src="{{ honk.clown_image }}" alt="{{ honk.clown_image_name }}"/>
 {% endfor %}

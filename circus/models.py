@@ -55,6 +55,7 @@ class Honk(CircusModel):
                 'honker': honk.honker.username,
                 'clown_name': honk.clown.name,
                 'clown_image': honk.clown.image.url,
+                'clown_image_name': honk.clown.image.name,
             }
             honks_list.append(honk_dict)
 

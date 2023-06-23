@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/4.2/ref/settings/
 """
 
 from pathlib import Path
-
+from google.oauth2 import service_account
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -124,6 +124,17 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 LOGIN_REDIRECT_URL = "/"
+STORAGES = {
+    "default": {"BACKEND": "storages.backends.gcloud.GoogleCloudStorage"},
+    "staticfiles": {
+        "BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"
+    },
+}
 
+# GOOGLE_APPLICATION_CREDENTIALS =
+GS_BUCKET_NAME = 'honkhonk'
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"
+GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+    f"{BASE_DIR}/gcp-honk-credentials.json"
+)

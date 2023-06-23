@@ -3,3 +3,4 @@
 .venv_honk
 media
 sqlite_data
+gcp-honk-credentials.json
