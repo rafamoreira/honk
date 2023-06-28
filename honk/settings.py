@@ -138,3 +138,4 @@ MEDIA_ROOT = BASE_DIR / "media"
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     f"{BASE_DIR}/gcp-honk-credentials.json"
 )
+CSRF_TRUSTED_ORIGINS = ['https://honk.rafaelmc.net']
