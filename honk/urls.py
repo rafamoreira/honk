@@ -7,14 +7,14 @@ from rest_framework import routers
 
 from circus import views
 
-router = routers.DefaultRouter()
-router.register(r'honks', views.HonkViewSet)
+# router = routers.DefaultRouter()
+# router.register(r'honks', views.HonkViewSet)
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("accounts/", include("django.contrib.auth.urls")),
-    path("circus/", include("circus.urls")),
-    path('', include(router.urls)),
+    # path("circus/", include("circus.urls")),
+    path('', include("circus.urls")),
     path('api', include('rest_framework.urls', namespace='rest_framework')),
 ]
 

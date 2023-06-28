@@ -18,6 +18,7 @@ class Clown(CircusModel):
     def __str__(self):
         return self.name
 
+
 class Honk(CircusModel):
     honker = models.ForeignKey(
         User,
@@ -41,22 +42,44 @@ class Honk(CircusModel):
         return f'{self.honker} honked {self.honked} with {self.clown}'
 
     @classmethod
-    def get_honks(cls, honked_id):
-        honks = cls.objects.filter(
-            honked_id=honked_id,
-        ).order_by(
-            '-created_at'
-        ).select_related(
+    def get_honks(
+        cls,
+        honked_id=None,
+        honker_id=None,
+        only_unseen=False,
+        mark_as_seen=False,
+    ) -> list:
+        """
+        Get honks for a user and return them as a list of dicts
+        """
+        honks = cls.objects
+        if honked_id:
+            honks = honks.filter(honked_id=honked_id)
+
+        if honker_id:
+            honks = honks.filter(honker_id=honker_id)
+
+        if only_unseen:
+            honks = honks.filter(seen__isnull=True)
+
+        honks.order_by('-created_at').select_related(
             'clown', 'honker', 'honked'
         )
-        honks_list = []
-        for honk in honks:
-            honk_dict = {
-                'honker': honk.honker.username,
-                'clown_name': honk.clown.name,
-                'clown_image': honk.clown.image.url,
-                'clown_image_name': honk.clown.image.name,
-            }
-            honks_list.append(honk_dict)
+
+        honks_list = [h.render_honk() for h in honks]
+
+        if mark_as_seen:
+            honks.update(seen=timezone.now())
 
         return honks_list
+
+    def render_honk(self) -> dict:
+        """
+        Render a honk as a dict with all details to be shown on a view
+        """
+        return {
+            'honker': self.honker.username,
+            'clown_name': self.clown.name,
+            'clown_image': self.clown.image.url,
+            'clown_image_name': self.clown.image.name,
+        }
