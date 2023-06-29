@@ -1,0 +1,55 @@
+{
+	"info": {
+		"_postman_id": "3ba424d5-18e6-41b0-bbe0-6a4db54f25a5",
+		"name": "Honk",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_uid": "6861858-3ba424d5-18e6-41b0-bbe0-6a4db54f25a5"
+	},
+	"item": [
+		{
+			"name": "/honks/",
+			"id": "e9048da8-9731-420b-9fcd-0cc09fde25e1",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{honk-url}}/honks/",
+					"host": [
+						"{{honk-url}}"
+					],
+					"path": [
+						"honks",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/honks/<:id>/",
+			"id": "12d5ce6f-1f5e-443b-b2f9-b42326dfa486",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{honk-url}}/honks/1/",
+					"host": [
+						"{{honk-url}}"
+					],
+					"path": [
+						"honks",
+						"1",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
