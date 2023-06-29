@@ -1,10 +1,11 @@
+"""
+circus views
+"""
+
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
-from rest_framework import viewsets
-from rest_framework import permissions
 
 from circus.models import Honk
-from circus.serializers import HonkSerializer
 
 HONKS_LIST = 'circus/honks.html'
 
@@ -50,12 +51,3 @@ def home(request):
     /
     """
     return all_honks(request)
-
-
-# class HonkViewSet(viewsets.ModelViewSet):
-#     """
-#     API endpoint that allows honks to be viewed or edited.
-#     """
-#     queryset = Honk.objects.all()
-#     serializer_class = HonkSerializer
-#     # permission_classes = [permissions.IsAuthenticated]
