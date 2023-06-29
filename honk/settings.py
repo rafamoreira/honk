@@ -36,8 +36,9 @@ SECRET_KEY = env('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env('DEBUG')
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'honk.rafaelmc.net']
 
+CSRF_TRUSTED_ORIGINS = ['https://honk.rafaelmc.net']
 
 # Application definition
 
@@ -149,4 +150,3 @@ MEDIA_ROOT = BASE_DIR / "media"
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     f"{BASE_DIR}/gcp-honk-credentials.json"
 )
-CSRF_TRUSTED_ORIGINS = ['https://honk.rafaelmc.net']

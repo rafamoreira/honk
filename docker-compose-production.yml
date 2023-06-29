@@ -29,12 +29,13 @@ services:
     restart: unless-stopped
   honk:
     image: rafaelmoreiracunha/honk:latest
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    command: bash -c "python manage.py migrate && gunicorn honk.wsgi -b 0.0.0.0:8000"
     container_name: honk
     volumes:
       - sqlite_data:/app/sqlite_data/
       - /root/gcp-honk-credentials.json:/app/gcp-honk-credentials.json
       - /root/sqlite_backups/:/sqlite_backups/
+      - /root/docker/envfiles/honk.env:/app/.env
     expose:
       - "8000"
     environment:

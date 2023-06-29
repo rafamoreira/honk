@@ -2,8 +2,8 @@ version: '3'
 
 services:
   honk:
-    image: rafaelmoreiracunha/honk:1
-    command: bash -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    image: rafaelmoreiracunha/honk:latest
+    command: bash -c "python manage.py migrate && gunicorn honk.wsgi -b 0.0.0.0:8000"
 #    command: bash -c "tail -f /dev/null"
     container_name: honk
     volumes:
