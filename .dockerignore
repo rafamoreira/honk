@@ -1,6 +1,7 @@
+.env
 .envrc
 .git
 .venv_honk
+gcp-honk-credentials.json
 media
 sqlite_data
-gcp-honk-credentials.json
