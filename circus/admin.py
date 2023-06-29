@@ -10,3 +10,4 @@ class HonkAdmin(admin.ModelAdmin):
 admin.site.register(Honk, HonkAdmin)
 
 admin.site.register(Clown)
+

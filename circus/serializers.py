@@ -4,13 +4,15 @@ from circus.models import Honk
 from rest_framework import serializers
 
 
-class HonkSerializer(serializers.HyperlinkedModelSerializer):
+class HonkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Honk
-        fields = ['url', 'id', 'created_at', 'updated_at']
+        fields = ['id', 'created_at', 'updated_at', 'honker']
+
+    honker = serializers.ReadOnlyField(source='honker.username')
 
 
-class UserSerializer(serializers.HyperlinkedModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['url', 'id', 'username']
+        fields = ['id', 'username']

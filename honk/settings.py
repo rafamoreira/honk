@@ -13,7 +13,7 @@ env = environ.Env(
 )
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR: Path = Path(__file__).resolve().parent.parent
 
 # reading .env files
 environ.Env.read_env(BASE_DIR / '.env')
@@ -22,17 +22,17 @@ environ.Env.read_env(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/4.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = env('SECRET_KEY')
+SECRET_KEY: str = env('SECRET_KEY')
 
-DEBUG = env('DEBUG')
+DEBUG: bool = env('DEBUG')
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'honk.rafaelmc.net']
+ALLOWED_HOSTS: list[str] = ['localhost', '127.0.0.1', 'honk.rafaelmc.net']
 
-CSRF_TRUSTED_ORIGINS = ['https://honk.rafaelmc.net']
+CSRF_TRUSTED_ORIGINS: list[str] = ['https://honk.rafaelmc.net']
 
 # Application definition
 
-INSTALLED_APPS = [
+INSTALLED_APPS: list[str] = [
     'circus.apps.CircusConfig',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -40,10 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'rest_framework'
+    'django_extensions',
+    'rest_framework',
+    'rest_framework.authtoken',
 ]
 
-MIDDLEWARE = [
+MIDDLEWARE: list[str] = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -130,3 +132,9 @@ MEDIA_ROOT = BASE_DIR / "media"
 GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
     f"{BASE_DIR}/gcp-honk-credentials.json"
 )
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',
+    ],
+}
