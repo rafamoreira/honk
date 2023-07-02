@@ -2,10 +2,7 @@
 {% block content %}
     {% load static %}
     {% for honk in honks %}
-        <p>{{ honk.honker }} honked you with {{ honk.clown_name }}</p>
+        <p>You honked {{ honk.honked }} with {{ honk.clown_name }}</p>
         <img src="{{ honk.clown_image }}" alt="{{ honk.clown_image_name }}"/>
-        <br>
-        <a href="{% url 'circus:read_honk' honk.id %}">Read</a>
-
     {% endfor %}
 {% endblock %}

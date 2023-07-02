@@ -9,7 +9,10 @@
 <body>
     <h1>Clown Honks</h1>
     <nav>
-        <a href="{% url 'circus:home' %}">Home</a>
+        <a href="{% url 'circus:home' %}">Home</a> | 
+        <a href="{% url 'circus:new_honk' %}">New Honk</a> | 
+        <a href="{% url 'circus:unread_honks' %}">Unread Honks</a> | 
+        <a href="{% url 'circus:sent_honks' %}">Sent Honks</a>
     </nav>
     {% block content %}{% endblock %}
 </body>

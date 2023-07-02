@@ -42,11 +42,27 @@ class Honk(CircusModel):
         return f'{self.honker} honked {self.honked} with {self.clown}'
 
     @classmethod
-    def get_rendered_honk(cls, honk_id) -> dict:
+    def get_honk(cls, honk_id) -> dict:
         """
         Get a honk by id
         """
         return cls.objects.get(id=honk_id).render_honk()
+
+    @classmethod
+    def get_sent_honks(cls, honker_id) -> list:
+        """
+        Get honks sent by a user and return them as a list of dicts
+        """
+        honks = cls.objects.filter(honker_id=honker_id).order_by('-created_at')
+        return [h.render_honk() for h in honks]
+
+    @classmethod
+    def get_unread_honks(cls, honked_id) -> list:
+        """
+        Get honks sent to a user and return them as a list of dicts
+        """
+        honks = cls.objects.filter(honked_id=honked_id, seen__isnull=True)
+        return [h.render_honk() for h in honks]
 
     @classmethod
     def get_honks(
@@ -85,9 +101,17 @@ class Honk(CircusModel):
         Render a honk as a dict with all details to be shown on a view
         """
         return {
+            'id': self.id,
             'honker': self.honker.username,
             'honked': self.honked.username,
             'clown_name': self.clown.name,
             'clown_image': self.clown.image.url,
             'clown_image_name': self.clown.image.name,
         }
+
+    def mark_as_seen(self):
+        """
+        Mark a honk as seen
+        """
+        self.seen = timezone.now()
+        self.save()
