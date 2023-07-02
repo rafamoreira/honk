@@ -42,6 +42,13 @@ class Honk(CircusModel):
         return f'{self.honker} honked {self.honked} with {self.clown}'
 
     @classmethod
+    def get_rendered_honk(cls, honk_id) -> dict:
+        """
+        Get a honk by id
+        """
+        return cls.objects.get(id=honk_id).render_honk()
+
+    @classmethod
     def get_honks(
         cls,
         honked_id=None,
@@ -79,6 +86,7 @@ class Honk(CircusModel):
         """
         return {
             'honker': self.honker.username,
+            'honked': self.honked.username,
             'clown_name': self.clown.name,
             'clown_image': self.clown.image.url,
             'clown_image_name': self.clown.image.name,
