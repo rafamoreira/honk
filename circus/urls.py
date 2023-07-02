@@ -11,8 +11,7 @@ urlpatterns = [
     path("honks/<int:pk>/read", web_views.read_honk, name='read_honk'),
     path("magic_word", web_views.magic_word, name='magic_word'),
 
-    path("honks/", api_views.honk_list),
-    path("honks/<int:pk>/", api_views.honk_detail),
-    path("users/", api_views.UserList.as_view()),
-    path("users/<int:pk>/", api_views.UserDetail.as_view()),
+    path("api/honks/", api_views.ListHonks.as_view()),
+    path("api/honks/unread/", api_views.ListUnreadHonks.as_view()),
+    path("api/honks/<int:pk>/read", api_views.ReadHonk.as_view()),
 ]

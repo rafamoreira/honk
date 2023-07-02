@@ -4,72 +4,57 @@ api_views.py
 This file contains the API views for the circus app.
 """
 from django.contrib.auth.models import User
-from django.http import HttpResponse, JsonResponse
 
-from rest_framework import generics, status
-from rest_framework.decorators import api_view, permission_classes
-from rest_framework.parsers import JSONParser
+from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 from circus.models import Honk
-from circus.serializers import HonkSerializer, UserSerializer
+from circus.serializers import HonkSerializer
 
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated])
-def honk_list(request):
-    """
-    /honk_list
-    """
-    if request.method == 'GET':
-        honks = Honk.objects.all()
+class ListHonks(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = HonkSerializer
+
+    @staticmethod
+    def get(request):
+        """
+        /api/honks
+        """
+        honks = Honk.objects.filter(honked=request.user)
         serializer = HonkSerializer(honks, many=True)
         return Response(serializer.data)
 
-    if request.method == 'POST':
-        data = JSONParser().parse(request)
-        serializer = HonkSerializer(data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
-def honk_detail(request, pk):
-    """
-    /honk_detail
-    """
-    try:
-        honk = Honk.objects.get(pk=pk)
-    except Honk.DoesNotExist:
-        return HttpResponse(status=404)
-
-    if request.method == 'GET':
-        serializer = HonkSerializer(honk)
-        return JsonResponse(serializer.data)
-
-    if request.method == 'PUT':
-        data = JSONParser().parse(request)
-        serializer = HonkSerializer(honk, data=data)
-        if serializer.is_valid():
-            serializer.save()
-            return JsonResponse(serializer.data)
-        return JsonResponse(serializer.errors, status=400)
-
-    if request.method == 'DELETE':
-        honk.delete()
-        return HttpResponse(status=204)
-
-
-class UserList(generics.ListAPIView):
+class ListUnreadHonks(APIView):
     permission_classes = [IsAuthenticated]
+    serializer_class = HonkSerializer
 
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    @staticmethod
+    def get(request):
+        """
+        /api/unread_honks
+        """
+        honks = Honk.objects.filter(honked=request.user, seen__isnull=True)
+        serializer = HonkSerializer(honks, many=True)
+        return Response(serializer.data)
 
 
-class UserDetail(generics.ListAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-# API_VIEWS END
+class ReadHonk(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = HonkSerializer
+
+    @staticmethod
+    def get(request, pk):
+        """
+        /api/read_honk
+        """
+        honk = Honk.objects.get(pk=pk)
+        if honk.honked != request.user:
+            return Response(status=status.HTTP_403_FORBIDDEN)
+        honk.mark_as_seen()
+        honk.refresh_from_db()
+        serializer = HonkSerializer(honk)
+        return Response(serializer.data)

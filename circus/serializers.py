@@ -7,12 +7,8 @@ from rest_framework import serializers
 class HonkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Honk
-        fields = ['id', 'created_at', 'updated_at', 'honker']
+        fields = ['id', 'honker', 'clown', 'clown_url', 'created_at']
 
     honker = serializers.ReadOnlyField(source='honker.username')
-
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username']
+    clown = serializers.ReadOnlyField(source='clown.name')
+    clown_url = serializers.ReadOnlyField(source='clown.image.url')
