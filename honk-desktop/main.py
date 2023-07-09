@@ -20,6 +20,7 @@ class Honk:
         self.clown_url = None
         self.created_at = None
         self.image_path = None
+        self.message = None
         self.frames = []
         self.extract_params(honk_dict)
 
@@ -32,6 +33,7 @@ class Honk:
         self.clown_url = honk_dict['clown_url']
         self.created_at = honk_dict['created_at']
         self.image_path = honk_dict['image_path']
+        self.message = honk_dict['clown']
         image = Image.open(self.image_path)
         for frame in ImageSequence.Iterator(image):
             self.frames.append(ImageTk.PhotoImage(frame))
@@ -43,10 +45,12 @@ class Main:
     """
 
     def __init__(self):
+        self.message_label = None
         self.current_frame = 0
         self.gif_label = None
         self.window = tkinter.Tk()
-        self.current_honk = 0
+        self.current_honk = None
+        self.current_honk_index = 0
         self.honks = []
 
     def start(self):
@@ -58,7 +62,10 @@ class Main:
         self.window.resizable(False, False)
         self.window.bind('<n>', self.next_honk)
         self.gif_label = tkinter.Label(self.window)
-        self.gif_label.pack(fill="both", expand=True)
+        self.gif_label.pack(fill="both", expand=True, side="top")
+        self.message_label = tkinter.Label(self.window)
+        self.message_label.pack(fill="both", expand=True, side="bottom")
+        self.next_honk(first=True)
         self.show_honks()
         self.window.mainloop()
 
@@ -84,58 +91,74 @@ class Main:
         I have no idea how to solve that using a single callback from the
         mainloop.
         """
-        try:
-            honk = self.honks[self.current_honk]
-        except IndexError:
-            honk = "End of honks for now!"
+        # try:
+        #     honk = self.honks[self.current_honk]
+        # except IndexError:
+        #     honk = "End of honks for now!"
+        #
+        # if isinstance(honk, str):
+        #     # If the label is different from the honk, destroy it and create a
+        #     # new one with the honk text, this is done to clear the label only
+        #     # when necessary, otherwise the label will be cleared every time
+        #     # the loop runs flickering the screen.
+        #     if self.gif_label.config('text')[-1] != honk:
+        #         self.gif_label.destroy()
+        #         self.gif_label = tkinter.Label(self.window)
+        #
+        #     self.gif_label.config(text=honk)
+        #     self.gif_label.pack(fill="both", expand=True)
+        # else:
+        #     # If the label is not empty, destroy it and create a new one
+        #     # this happens when a new honk is loaded after the initial loop.
+        #     if self.gif_label.config('text')[-1] != "":
+        #         self.gif_label.destroy()
+        #         self.gif_label = tkinter.Label(self.window)
+        #         self.gif_label.pack(fill="both", expand=True)
+        if self.current_honk is None:
+            self.gif_label.destroy()
+            self.gif_label = tkinter.Label(self.window)
+            self.gif_label.pack(fill="both", expand=True, side="top")
+            self.message_label.config(text="End of honks for now!")
+            return self.window.after(50, self.show_honks)
 
-        if isinstance(honk, str):
-            # If the label is different from the honk, destroy it and create a
-            # new one with the honk text, this is done to clear the label only
-            # when necessary, otherwise the label will be cleared every time
-            # the loop runs flickering the screen.
-            if self.gif_label.config('text')[-1] != honk:
-                self.gif_label.destroy()
-                self.gif_label = tkinter.Label(self.window)
+        if self.current_frame >= len(self.current_honk.frames):
+            self.current_frame = 0
 
-            self.gif_label.config(text=honk)
-            self.gif_label.pack(fill="both", expand=True)
-        else:
-            # If the label is not empty, destroy it and create a new one
-            # this happens when a new honk is loaded after the initial loop.
-            if self.gif_label.config('text')[-1] != "":
-                self.gif_label.destroy()
-                self.gif_label = tkinter.Label(self.window)
-                self.gif_label.pack(fill="both", expand=True)
-
-            if self.current_frame >= len(honk.frames):
-                self.current_frame = 0
-
-            self.gif_label.config(image=honk.frames[self.current_frame])
+        self.gif_label.config(
+            image=self.current_honk.frames[self.current_frame],
+        )
+        self.message_label.config(text=self.current_honk.message)
 
         self.current_frame += 1
         self.window.after(50, self.show_honks)
 
-    def next_honk(self, event):
+    def next_honk(self, _=None, first=False):
         """
         Next honk
         """
+        if first:
+            self.current_honk = self.honks[self.current_honk_index]
+            return
 
-        self.current_honk += 1
-        self.current_frame = 0
+        if self.current_honk_index + 1 >= len(self.honks):
+            self.current_honk = None
+            return
+
+        self.current_honk_index += 1
+        self.current_honk = self.honks[self.current_honk_index]
 
 
 def api_thread(api: Api):
     """
     api_thread function
-    runs in the background, every 10 seconds. Fetches honks from the API.
+    runs in the background, every 30 seconds. Fetches honks from the API.
     :param api: Api.
     """
     print('api_thread started')
     api.fetch_honks()
     main.ingest_honks(api.honks.values())
     print('api_thread finished')
-    thread = threading.Timer(5, api_thread, args=[api])
+    thread = threading.Timer(30, api_thread, args=[api])
     thread.daemon = True
     thread.start()
 
