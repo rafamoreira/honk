@@ -1,12 +1,13 @@
-#include <curlpp/cURLpp.hpp>
-#include <curlpp/Options.hpp>
-#include <curlpp/Easy.hpp>
 #include <filesystem>
 #include <sstream>
 #include <fstream>
 #include <iostream>
 #include <string>
-#include "../include/nlohmann/json.hpp"
+
+#include <curlpp/cURLpp.hpp>
+#include <curlpp/Options.hpp>
+#include <curlpp/Easy.hpp>
+#include <nlohmann/json.hpp>
 
 
 using json = nlohmann::json;
