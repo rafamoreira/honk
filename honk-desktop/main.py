@@ -3,7 +3,6 @@ Honk desktop app
 """
 import io
 import threading
-import time
 import tkinter
 
 from PIL import Image, ImageTk, ImageSequence
