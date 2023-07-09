@@ -1,4 +1,8 @@
+#include <curlpp/cURLpp.hpp>
+#include <curlpp/Options.hpp>
+#include <curlpp/Easy.hpp>
 #include <filesystem>
+#include <sstream>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -42,6 +46,20 @@ std::string get_credentials() {
 
 int main() {
     std::string api_credentials = get_credentials();
+//    std::stringstream result;
+
+    std::cout << api_credentials << std::endl;
+    curlpp::Cleanup myCleanup;
+    curlpp::Easy myRequest;
+    myRequest.setOpt<cURLpp::Options::Url>("https://honk.rafaelmc.net/api/honks/");
+    std::list <std::string> header;
+    header.push_back("Authorization: Token " + api_credentials);
+    myRequest.setOpt(new curlpp::options::HttpHeader(header));
+//    myRequest.setOpt(cURLpp::options::WriteStream(&result));
+    myRequest.perform();
+
+
+
     std::cout << "Hello, World!" << std::endl;
     return 0;
 }

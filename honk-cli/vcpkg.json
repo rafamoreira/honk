@@ -1,0 +1,9 @@
+{
+  "name" : "honk-cli",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "dafef74af53669ef1cc9015f55e0ce809ead62aa",
+  "dependencies" : [ {
+    "name" : "curlpp",
+    "version>=" : "2018-06-15#7"
+  } ]
+}
