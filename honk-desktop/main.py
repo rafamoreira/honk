@@ -21,6 +21,7 @@ class Honk:
         self.clown_url = None
         self.created_at = None
         self.image_path = None
+        self.frames = []
         self.extract_params(honk_dict)
 
     def extract_params(self, honk_dict):
@@ -32,6 +33,9 @@ class Honk:
         self.clown_url = honk_dict['clown_url']
         self.created_at = honk_dict['created_at']
         self.image_path = honk_dict['image_path']
+        image = Image.open(self.image_path)
+        for frame in ImageSequence.Iterator(image):
+            self.frames.append(ImageTk.PhotoImage(frame))
 
 
 class Main:
@@ -43,6 +47,11 @@ class Main:
         self.gif_label = None
         self.window = tkinter.Tk()
         self.current_honk = None
+        self.honks = [
+            'lol1',
+            'lol2',
+            'lol3',
+        ]
 
     def start(self):
         """
@@ -51,7 +60,7 @@ class Main:
         self.window.title("Honk")
         self.window.geometry("800x600")
         self.window.resizable(False, False)
-        self.show_honks(initial_run=True)
+        self.display_new_honk()
         self.window.bind('<n>', self.display_new_honk)
         self.window.mainloop()
 
@@ -59,11 +68,18 @@ class Main:
         self.gif_label = tkinter.Label(self.window, text=self.honks.pop())
         self.gif_label.pack()
 
-    def display_new_honk(self, event) -> None:
-        self.gif_label.destroy()
-        print('Test label')
-        self.gif_label = tkinter.Label(self.window, text=self.honks.pop())
+    def display_new_honk(self, event=None) -> None:
+        if self.gif_label:
+            self.gif_label.destroy()
+
+        try:
+            label = self.honks.pop()
+        except IndexError:
+            label = "End of honks for now!"
+
+        self.gif_label = tkinter.Label(self.window, text=label)
         self.gif_label.pack()
+        self.window.after(1000, self.display_new_honk)
 
     def update_image(self):
         """
