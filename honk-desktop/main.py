@@ -3,11 +3,35 @@ Honk desktop app
 """
 import io
 import threading
+import time
 import tkinter
 
 from PIL import Image, ImageTk, ImageSequence
 
 from utils import Api, Config, FileCache
+
+
+class Honk:
+    """
+    Honk class
+    """
+
+    def __init__(self, honk_dict):
+        self.id = None
+        self.clown_url = None
+        self.created_at = None
+        self.image_path = None
+        self.extract_params(honk_dict)
+
+    def extract_params(self, honk_dict):
+        """
+        Extract params from the honk dict
+        """
+
+        self.id = honk_dict['id']
+        self.clown_url = honk_dict['clown_url']
+        self.created_at = honk_dict['created_at']
+        self.image_path = honk_dict['image_path']
 
 
 class Main:
@@ -16,12 +40,9 @@ class Main:
     """
 
     def __init__(self):
-        self.frames = None
-        self.image = None
-        self.honks = {}
         self.gif_label = None
-        self.current_frame = 0
         self.window = tkinter.Tk()
+        self.current_honk = None
 
     def start(self):
         """
@@ -35,10 +56,14 @@ class Main:
         self.window.mainloop()
 
     def show_honks(self, initial_run=False) -> None:
-        print(f'show honks called {initial_run}')
+        self.gif_label = tkinter.Label(self.window, text=self.honks.pop())
+        self.gif_label.pack()
 
     def display_new_honk(self, event) -> None:
-        print('Display new honk')
+        self.gif_label.destroy()
+        print('Test label')
+        self.gif_label = tkinter.Label(self.window, text=self.honks.pop())
+        self.gif_label.pack()
 
     def update_image(self):
         """
@@ -85,4 +110,6 @@ if __name__ == '__main__':
     file_cache_singleton = FileCache(config_singleton)
     api: Api = Api(config_singleton.api_credentials, file_cache_singleton)
     api_thread(api)
-    Main().start()
+    main = Main()
+    main.start()
+    print('after mainloop')
