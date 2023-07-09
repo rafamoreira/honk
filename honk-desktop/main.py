@@ -91,29 +91,6 @@ class Main:
         I have no idea how to solve that using a single callback from the
         mainloop.
         """
-        # try:
-        #     honk = self.honks[self.current_honk]
-        # except IndexError:
-        #     honk = "End of honks for now!"
-        #
-        # if isinstance(honk, str):
-        #     # If the label is different from the honk, destroy it and create a
-        #     # new one with the honk text, this is done to clear the label only
-        #     # when necessary, otherwise the label will be cleared every time
-        #     # the loop runs flickering the screen.
-        #     if self.gif_label.config('text')[-1] != honk:
-        #         self.gif_label.destroy()
-        #         self.gif_label = tkinter.Label(self.window)
-        #
-        #     self.gif_label.config(text=honk)
-        #     self.gif_label.pack(fill="both", expand=True)
-        # else:
-        #     # If the label is not empty, destroy it and create a new one
-        #     # this happens when a new honk is loaded after the initial loop.
-        #     if self.gif_label.config('text')[-1] != "":
-        #         self.gif_label.destroy()
-        #         self.gif_label = tkinter.Label(self.window)
-        #         self.gif_label.pack(fill="both", expand=True)
         if self.current_honk is None:
             self.gif_label.destroy()
             self.gif_label = tkinter.Label(self.window)
