@@ -43,14 +43,11 @@ class Main:
     """
 
     def __init__(self):
+        self.current_frame = 0
         self.gif_label = None
         self.window = tkinter.Tk()
-        self.current_honk = None
-        self.honks = [
-            'lol1',
-            'lol2',
-            'lol3',
-        ]
+        self.current_honk = 0
+        self.honks = []
 
     def start(self):
         """
@@ -59,72 +56,98 @@ class Main:
         self.window.title("Honk")
         self.window.geometry("800x600")
         self.window.resizable(False, False)
-        self.display_new_honk()
-        self.window.bind('<n>', self.display_new_honk)
+        self.window.bind('<n>', self.next_honk)
+        self.gif_label = tkinter.Label(self.window)
+        self.gif_label.pack(fill="both", expand=True)
+        self.show_honks()
         self.window.mainloop()
 
-    def show_honks(self, initial_run=False) -> None:
-        self.gif_label = tkinter.Label(self.window, text=self.honks.pop())
-        self.gif_label.pack()
+    def ingest_honks(self, honks):
+        """
+        Ingest honks
+        """
 
-    def display_new_honk(self, event=None) -> None:
-        if self.gif_label:
-            self.gif_label.destroy()
+        honk_ids = [honk.id for honk in self.honks]
 
+        for honk in honks:
+            if honk['id'] not in honk_ids:
+                self.honks.append(Honk(honk))
+
+    def show_honks(self) -> None:
+        """
+        Show honks
+        this ended up being a kitchen sink render function, it probably should
+        be refactored into smaller functions. Specifically the part where it
+        checks if the honk is a string or an image, or split the rendering
+        images and strings into different functions.
+        The problem is the desktop paradigm, where you have to render that
+        I have no idea how to solve that using a single callback from the
+        mainloop.
+        """
         try:
-            label = self.honks.pop()
+            honk = self.honks[self.current_honk]
         except IndexError:
-            label = "End of honks for now!"
+            honk = "End of honks for now!"
 
-        self.gif_label = tkinter.Label(self.window, text=label)
-        self.gif_label.pack()
-        self.window.after(1000, self.display_new_honk)
+        if isinstance(honk, str):
+            # If the label is different from the honk, destroy it and create a
+            # new one with the honk text, this is done to clear the label only
+            # when necessary, otherwise the label will be cleared every time
+            # the loop runs flickering the screen.
+            if self.gif_label.config('text')[-1] != honk:
+                self.gif_label.destroy()
+                self.gif_label = tkinter.Label(self.window)
 
-    def update_image(self):
-        """
-        Update the GIF image
-        """
-        self.current_frame = (self.current_frame + 1) % len(self.frames)
-        self.gif_label.config(image=self.frames[self.current_frame])
-        self.window.after(
-            int(1000 / 20), self.update_image
-        )  # Change image every 100 ms
+            self.gif_label.config(text=honk)
+            self.gif_label.pack(fill="both", expand=True)
+        else:
+            # If the label is not empty, destroy it and create a new one
+            # this happens when a new honk is loaded after the initial loop.
+            if self.gif_label.config('text')[-1] != "":
+                self.gif_label.destroy()
+                self.gif_label = tkinter.Label(self.window)
+                self.gif_label.pack(fill="both", expand=True)
 
-    def load_gif_from_url(self, url) -> None:
+            if self.current_frame >= len(honk.frames):
+                self.current_frame = 0
+
+            self.gif_label.config(image=honk.frames[self.current_frame])
+
+        self.current_frame += 1
+        self.window.after(50, self.show_honks)
+
+    def next_honk(self, event):
         """
-        Load a GIF from a URL
+        Next honk
         """
-        self.image = Image.open(io.BytesIO(img_data))
-        self.frames = [ImageTk.PhotoImage(frame.copy().convert('RGBA')) for
-                       frame in ImageSequence.Iterator(self.image)]
+
+        self.current_honk += 1
         self.current_frame = 0
 
-        # Displaying the GIF
-        self.gif_label = tkinter.Label(self.window, image=self.frames[0])
-        self.gif_label.pack()
 
-        self.update_image()
-
-
-def api_thread(api_singleton: Api):
+def api_thread(api: Api):
     """
     api_thread function
     runs in the background, every 10 seconds. Fetches honks from the API.
-    :param api_singleton: Api.
+    :param api: Api.
     """
     print('api_thread started')
-    api_singleton.fetch_honks()
+    api.fetch_honks()
+    main.ingest_honks(api.honks.values())
     print('api_thread finished')
-    thread = threading.Timer(5, api_thread, args=[api_singleton])
+    thread = threading.Timer(5, api_thread, args=[api])
     thread.daemon = True
     thread.start()
 
 
 if __name__ == '__main__':
+    main = Main()
     config_singleton: Config = Config()
     file_cache_singleton = FileCache(config_singleton)
-    api: Api = Api(config_singleton.api_credentials, file_cache_singleton)
-    api_thread(api)
-    main = Main()
+    api_singleton: Api = Api(
+        config_singleton.api_credentials,
+        file_cache_singleton,
+    )
+    api_thread(api_singleton)
     main.start()
     print('after mainloop')
