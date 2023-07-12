@@ -1,7 +1,6 @@
 """
 Honk desktop app
 """
-import io
 import logging
 import threading
 import tkinter
@@ -12,7 +11,9 @@ from utils import Api, Config, FileCache
 
 
 logging.basicConfig(
-    format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO
+    filename="honk.log",
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    level=logging.INFO,
 )
 
 
@@ -117,7 +118,7 @@ class Main:
             if honk['id'] not in honk_ids:
                 self.honks.append(Honk(honk))
 
-    def show_honks(self) -> None:
+    def show_honks(self) -> str:
         """
         Show honks
         this ended up being a kitchen sink render function, it probably should
