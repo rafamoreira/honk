@@ -1,0 +1,4 @@
+{
+    "cmake.configureArgs": [],
+    "vcpkg.general.enable": true
+}

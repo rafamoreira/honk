@@ -2,12 +2,18 @@
 Honk desktop app
 """
 import io
+import logging
 import threading
 import tkinter
 
 from PIL import Image, ImageTk, ImageSequence
 
 from utils import Api, Config, FileCache
+
+
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO
+)
 
 
 class Honk:
@@ -19,9 +25,10 @@ class Honk:
         self.id = None
         self.clown_url = None
         self.created_at = None
+        self.frames = []
+        self.honker = None
         self.image_path = None
         self.message = None
-        self.frames = []
         self.extract_params(honk_dict)
 
     def extract_params(self, honk_dict):
@@ -34,6 +41,7 @@ class Honk:
         self.created_at = honk_dict['created_at']
         self.image_path = honk_dict['image_path']
         self.message = honk_dict['clown']
+        self.honker = honk_dict['honker']
         image = Image.open(self.image_path)
         for frame in ImageSequence.Iterator(image):
             self.frames.append(ImageTk.PhotoImage(frame))
@@ -45,6 +53,8 @@ class Main:
     """
 
     def __init__(self):
+        self.honker_label = None
+        self.info_label = None
         self.message_label = None
         self.current_frame = 0
         self.gif_label = None
@@ -58,16 +68,43 @@ class Main:
         Start the app
         """
         self.window.title("Honk")
-        self.window.geometry("800x600")
         self.window.resizable(False, False)
         self.window.bind('<n>', self.next_honk)
+        self.window.bind('<p>', self.previous_honk)
+        self.window.bind('<r>', self.mark_honk_as_read)
+        self.window.bind('<a>', self.toggle_honks)
+        self.info_label = tkinter.Label(self.window)
+        self.info_label.config(
+            text="Press 'n' or 'p' for next or previous honk. \n"
+                 "'r' to mark as read | "
+                 "'a' to toggle between all and unread honks"
+        )
+        self.info_label.pack(fill="both", expand=True, side="top")
         self.gif_label = tkinter.Label(self.window)
         self.gif_label.pack(fill="both", expand=True, side="top")
         self.message_label = tkinter.Label(self.window)
         self.message_label.pack(fill="both", expand=True, side="bottom")
+        self.honker_label = tkinter.Label(self.window)
+        self.honker_label.pack(fill="both", expand=True, side="bottom")
         self.next_honk(first=True)
         self.show_honks()
         self.window.mainloop()
+
+    def toggle_honks(self, _):
+        api_singleton.toggle_fetch_url()
+
+    def mark_honk_as_read(self, _):
+        """
+        Mark honk as read
+        """
+        if self.current_honk is None:
+            return
+        t = threading.Thread(
+            target=mark_as_read_thread,
+            args=(self.current_honk.id,),
+            daemon=True,
+        )
+        t.start()
 
     def ingest_honks(self, honks):
         """
@@ -96,6 +133,7 @@ class Main:
             self.gif_label = tkinter.Label(self.window)
             self.gif_label.pack(fill="both", expand=True, side="top")
             self.message_label.config(text="End of honks for now!")
+            self.honker_label.config(text="")
             return self.window.after(50, self.show_honks)
 
         if self.current_frame >= len(self.current_honk.frames):
@@ -105,6 +143,7 @@ class Main:
             image=self.current_honk.frames[self.current_frame],
         )
         self.message_label.config(text=self.current_honk.message)
+        self.honker_label.config(text=f"from: {self.current_honk.honker}")
 
         self.current_frame += 1
         self.window.after(50, self.show_honks)
@@ -123,6 +162,25 @@ class Main:
 
         self.current_honk_index += 1
         self.current_honk = self.honks[self.current_honk_index]
+
+    def previous_honk(self, _=None):
+        """
+        Previous honk
+        """
+        if self.current_honk_index - 1 < 0:
+            return
+
+        self.current_honk_index -= 1
+        self.current_honk = self.honks[self.current_honk_index]
+
+
+def mark_as_read_thread(honk_id: str):
+    """
+    Mark as read
+    """
+    logging.info(f'Thread to mark {honk_id} as read started')
+    api_singleton.mark_as_read(honk_id)
+    logging.info(f'Thread to mark {honk_id} as read over')
 
 
 def api_thread(api: Api):

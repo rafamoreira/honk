@@ -2,6 +2,7 @@
 Utility functions and classes
 """
 import json
+import logging
 import os
 import requests
 
@@ -80,6 +81,9 @@ class Api:
     Api class
     """
     BASE_URL = 'https://honk.rafaelmc.net/api'
+    FETCH_UNREAD_URL = f"{BASE_URL}/honks/unread"
+    FETCH_ALL_URL = f"{BASE_URL}/honks"
+
 
     def __init__(self, api_token, file_cache):
         self.api_token = api_token
@@ -87,6 +91,16 @@ class Api:
         self.headers = {'Authorization': f'Token {self.api_token}'}
         self.client = requests
         self.honks = {}
+        self.fetch_url = self.get_fetch_url()
+
+    def get_fetch_url(self) -> str:
+        return self.FETCH_UNREAD_URL
+
+    def toggle_fetch_url(self) -> None:
+        if self.fetch_url == self.FETCH_UNREAD_URL:
+            self.fetch_url = self.FETCH_ALL_URL
+        else:
+            self.fetch_url = self.FETCH_UNREAD_URL
 
     def fetch_honks(self) -> None:
         """
@@ -94,7 +108,7 @@ class Api:
         """
 
         response = self.client.get(
-            f"{self.BASE_URL}/honks/", headers=self.headers
+            self.fetch_url, headers=self.headers
         )
         honks = response.json()
 
@@ -116,6 +130,23 @@ class Api:
             url=honk['clown_url']
         )
         print(f'New honk: {honk["id"]}\n')
+
+    def mark_as_read(self, honk_id) -> None:
+        """
+        Mark a honk as read
+        :param honk_id: Honk ID
+        :return None
+        """
+
+        response = self.client.get(
+            f"{self.BASE_URL}/honks/{honk_id}/read", headers=self.headers
+        )
+        if response.status_code != 200:
+            logging.error(
+                f'Could not mark honk {honk_id} as read: {response}'
+            )
+        else:
+            logging.info(f'Marked honk {honk_id} as read: {response.json()}')
 
 
 class FileCache:
